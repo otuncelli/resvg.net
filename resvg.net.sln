@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "resvg.net", "resvg.net\resvg.net.csproj", "{6ADD4BB2-03EC-4E88-ADDC-E7FC1E810DFF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "resvg.net.SampleApp", "resvg.net.SampleApp\resvg.net.SampleApp.csproj", "{DEFE191A-6F32-48FE-92DF-4C9504F19EFA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6ADD4BB2-03EC-4E88-ADDC-E7FC1E810DFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ADD4BB2-03EC-4E88-ADDC-E7FC1E810DFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ADD4BB2-03EC-4E88-ADDC-E7FC1E810DFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ADD4BB2-03EC-4E88-ADDC-E7FC1E810DFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEFE191A-6F32-48FE-92DF-4C9504F19EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEFE191A-6F32-48FE-92DF-4C9504F19EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEFE191A-6F32-48FE-92DF-4C9504F19EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEFE191A-6F32-48FE-92DF-4C9504F19EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68129352-00B2-4D90-BEC4-A39BF9A42756}
+	EndGlobalSection
+EndGlobal
