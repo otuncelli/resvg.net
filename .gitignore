@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/resvg.net/resvg_x64.dll
+/resvg.net/resvg_Arm64.dll

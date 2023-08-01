@@ -20,7 +20,7 @@ namespace resvg.net.SampleApp
                     {
                         Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
                         BitmapData data = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
-                        resvg.Render(data.Scan0, size.Width, size.Height, FitToType.Original);
+                        resvg.Render(data.Scan0, size.Width, size.Height);
                         ConvertFromRgba(data);
                         bitmap.UnlockBits(data);
                         bitmap.Save("output.png");

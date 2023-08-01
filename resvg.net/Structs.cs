@@ -4,40 +4,33 @@ using System.Runtime.InteropServices;
 namespace resvg.net
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct resvg_size
+    public ref struct ResvgSize
     {
-        public double Width;
-        public double Height;
-
-        public Size ToSize() => new Size((int)Width, (int)Height);
+        public float Width;
+        public float Height;
+        public static explicit operator Size(ResvgSize size) => Size.Round(size);
+        public static implicit operator SizeF(ResvgSize size) => new SizeF(size.Width, size.Height);
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct resvg_rect
+    public ref struct ResvgRect
     {
-        public double X;
-        public double Y;
-        public double Width;
-        public double Height;
-
-        public Rectangle ToRectangle() => new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
+        public float X;
+        public float Y;
+        public float Width;
+        public float Height;
+        public static explicit operator Rectangle(ResvgRect rect) => Rectangle.Round(rect);
+        public static implicit operator RectangleF(ResvgRect rect) => new RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct resvg_transform
+    public ref struct ResvgTransform
     {
-        public double a;
-        public double b;
-        public double c;
-        public double d;
-        public double e;
-        public double f;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct resvg_fit_to
-    {
-        public FitToType type;
-        public float value;
+        public float a;
+        public float b;
+        public float c;
+        public float d;
+        public float e;
+        public float f;
     }
 }

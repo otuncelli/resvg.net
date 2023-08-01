@@ -2,6 +2,51 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="resvg_x86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="resvg_x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="resvg_arm64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('USE_DELEGATES'))=='false'">
+    <None Update="Native\NativeMethods.Pinvoke.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NativeMethods.Pinvoke.g.cs</LastGenOutput>
+    </None>
+    <Compile Update="Native\NativeMethods.Pinvoke.g.cs">
+      <DependentUpon>NativeMethods.Pinvoke.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <None Remove="Native\NativeMethods.Delegates.tt"></None>
+    <Compile Remove="Native\NativeMethods.Delegates.g.cs"></Compile>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('USE_DELEGATES'))=='true'">
+    <None Update="Native\NativeMethods.Delegates.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NativeMethods.Delegates.g.cs</LastGenOutput>
+    </None>
+    <Compile Update="Native\NativeMethods.Delegates.g.cs">
+      <DependentUpon>NativeMethods.Delegates.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <None Remove="Native\NativeMethods.Pinvoke.tt"></None>
+    <Compile Remove="Native\NativeMethods.Pinvoke.g.cs"></Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
 
 </Project>

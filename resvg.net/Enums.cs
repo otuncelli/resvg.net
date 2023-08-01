@@ -35,32 +35,6 @@
     }
 
     /// <summary>
-    /// "fit to" type.
-    /// </summary>
-    /// <remarks>
-    /// All types produce proportional scaling.
-    /// </remarks>
-    public enum FitToType
-    {
-        /// <summary>
-        /// Use an original image size.
-        /// </summary>
-        Original,
-        /// <summary>
-        /// Fit an image to a specified width.
-        /// </summary>
-        Width,
-        /// <summary>
-        /// Fit an image to a specified height.
-        /// </summary>
-        Height,
-        /// <summary>
-        /// Zoom an image using scaling factor.
-        /// </summary>
-        Zoom,
-    }
-
-    /// <summary>
     /// Image rendering method.
     /// </summary>
     public enum ImageRenderingMode

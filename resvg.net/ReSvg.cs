@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
@@ -10,9 +11,9 @@ namespace resvg.net
         private IntPtr tree;
         private static bool logging;
 
-        public resvg_size Size { get; private set; }
-        public resvg_rect Viewbox { get; private set; }
-        public resvg_rect? Bbox { get; private set; }
+        public SizeF Size { get; private set; }
+        public RectangleF Viewbox { get; private set; }
+        public RectangleF? Bbox { get; private set; }
 
         private ReSvg()
         {
@@ -20,25 +21,25 @@ namespace resvg.net
 
         private void Init()
         {
-            Size = Native.resvg_get_image_size(tree);
-            Viewbox = Native.resvg_get_image_viewbox(tree);
-            if (Native.resvg_get_image_bbox(tree, out resvg_rect bbox))
+            Size = NativeMethods.resvg_get_image_size(tree);
+            Viewbox = NativeMethods.resvg_get_image_viewbox(tree);
+            if (NativeMethods.resvg_get_image_bbox(tree, out ResvgRect bbox))
             {
                 Bbox = bbox;
             }
         }
 
         public bool IsEmpty
-            => Native.resvg_is_image_empty(tree);
+            => NativeMethods.resvg_is_image_empty(tree);
 
         public bool NodeExists(string id)
-            => Native.resvg_node_exists(tree, id);
+            => NativeMethods.resvg_node_exists(tree, id);
 
-        public bool TryGetNodeTransform(string id, out resvg_transform transform)
-            => Native.resvg_get_node_transform(tree, id, out transform);
+        public bool TryGetNodeTransform(string id, out ResvgTransform transform)
+            => NativeMethods.resvg_get_node_transform(tree, id, out transform);
 
-        public bool TryGetNodeBbox(string id, out resvg_rect bbox)
-            => Native.resvg_get_node_bbox(tree, id, out bbox);
+        public bool TryGetNodeBbox(string id, out ResvgRect bbox)
+            => NativeMethods.resvg_get_node_bbox(tree, id, out bbox);
 
         private static void Check(ReSvgError error)
         {
@@ -46,11 +47,10 @@ namespace resvg.net
             throw new ReSvgException(error);
         }
 
-        public void Render(IntPtr pixmap, int rasterWidth, int rasterHeight, FitToType fitToType)
+        public void Render(IntPtr pixmap, int rasterWidth, int rasterHeight)
         {
-            resvg_transform transform = Native.resvg_transform_identity();
-            resvg_fit_to fitto = new resvg_fit_to { type = fitToType };
-            Native.resvg_render(tree, fitto, transform, (uint)rasterWidth, (uint)rasterHeight, pixmap);
+            ResvgTransform transform = NativeMethods.resvg_transform_identity();
+            NativeMethods.resvg_render(tree, transform, (uint)rasterWidth, (uint)rasterHeight, pixmap);
         }
 
         public static ReSvg FromFile(string path, ReSvgOptions options)
@@ -58,7 +58,7 @@ namespace resvg.net
             ReSvg resvg = new ReSvg();
             try
             {
-                Check(Native.resvg_parse_tree_from_file(path, options.opt, out resvg.tree));
+                Check(NativeMethods.resvg_parse_tree_from_file(path, options.Handle, out resvg.tree));
                 resvg.Init();
             }
             catch (Exception)
@@ -69,10 +69,16 @@ namespace resvg.net
             return resvg;
         }
 
-        public static ReSvg FromFile(string path)
+        public static ReSvg FromFile(string path, bool loadSystemFonts = true)
         {
-            using ReSvgOptions options = new ReSvgOptions();
-            return FromFile(path, options);
+            using (ReSvgOptions options = new ReSvgOptions())
+            {
+                if (loadSystemFonts)
+                {
+                    options.LoadSystemFonts();
+                }
+                return FromFile(path, options);
+            }
         }
 
         public static ReSvg FromData(string data, ReSvgOptions options)
@@ -80,7 +86,7 @@ namespace resvg.net
             ReSvg resvg = new ReSvg();
             try
             {
-                Check(Native.resvg_parse_tree_from_data(data, (UIntPtr)Encoding.UTF8.GetByteCount(data), options.opt, out resvg.tree));
+                Check(NativeMethods.resvg_parse_tree_from_data(data, (UIntPtr)Encoding.UTF8.GetByteCount(data), options.Handle, out resvg.tree));
                 resvg.Init();
             }
             catch (Exception)
@@ -91,29 +97,39 @@ namespace resvg.net
             return resvg;
         }
 
-        public static ReSvg FromData(string data)
+        public static ReSvg FromData(string data, bool loadSystemFonts = true)
         {
-            using ReSvgOptions options = new ReSvgOptions();
-            return FromData(data, options);
+            using (ReSvgOptions options = new ReSvgOptions())
+            {
+                if (loadSystemFonts)
+                {
+                    options.LoadSystemFonts();
+                }
+                return FromData(data, options);
+            }
         }
 
         public static ReSvg FromStream(Stream stream, ReSvgOptions options)
         {
-            using StreamReader reader = new StreamReader(stream);
-            return FromData(reader.ReadToEnd(), options);
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                return FromData(reader.ReadToEnd(), options);
+            }
         }
 
-        public static ReSvg FromStream(Stream stream)
+        public static ReSvg FromStream(Stream stream, bool loadSystemFonts = true)
         {
-            using StreamReader reader = new StreamReader(stream);
-            return FromData(reader.ReadToEnd());
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                return FromData(reader.ReadToEnd(), loadSystemFonts);
+            }
         }
 
         public static void InitLog()
         {
             if (!logging)
             {
-                Native.resvg_init_log();
+                NativeMethods.resvg_init_log();
                 logging = true;
             }
         }
@@ -122,7 +138,7 @@ namespace resvg.net
         {
             if (!disposed)
             {
-                Native.resvg_tree_destroy(tree);
+                NativeMethods.resvg_tree_destroy(tree);
                 tree = IntPtr.Zero;
                 disposed = true;
             }

@@ -10,27 +10,19 @@ namespace resvg.net
 
         private static string GetMessage(ReSvgError error)
         {
-            switch (error)
+            return error switch
             {
-                case ReSvgError.OK:
-                    return "Everything is ok.";
-                case ReSvgError.NOT_AN_UTF8_STR:
-                    return "Only UTF-8 content are supported.";
-                case ReSvgError.FILE_OPEN_FAILED:
-                    return "Failed to open the provided file.";
-                case ReSvgError.MALFORMED_GZIP:
-                    return "Compressed SVG must use the GZip algorithm.";
-                case ReSvgError.ELEMENTS_LIMIT_REACHED:
-                    return "We do not allow SVG with more than 1_000_000 elements for security reasons.";
-                case ReSvgError.INVALID_SIZE:
-                    return @"SVG doesn't have a valid size.
-Occurs when width and/or height are <= 0.
-Also occurs if width, height and viewBox are not set.";
-                case ReSvgError.PARSING_FAILED:
-                    return "Failed to parse an SVG data.";
-                default:
-                    return "Unknown error";
-            }
+                ReSvgError.OK => "Everything is ok.",
+                ReSvgError.NOT_AN_UTF8_STR => "Only UTF-8 content are supported.",
+                ReSvgError.FILE_OPEN_FAILED => "Failed to open the provided file.",
+                ReSvgError.MALFORMED_GZIP => "Compressed SVG must use the GZip algorithm.",
+                ReSvgError.ELEMENTS_LIMIT_REACHED => "We do not allow SVG with more than 1_000_000 elements for security reasons.",
+                ReSvgError.INVALID_SIZE => "SVG doesn't have a valid size. " +
+                "Occurs when width and/or height are <= 0. " +
+                "Also occurs if width, height and viewBox are not set.",
+                ReSvgError.PARSING_FAILED => "Failed to parse an SVG data.",
+                _ => "Unknown error",
+            };
         }
     }
 }
