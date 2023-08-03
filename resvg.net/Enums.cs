@@ -1,6 +1,6 @@
 ﻿namespace resvg.net
 {
-    internal enum ReSvgError
+    internal enum ResvgError
     {
         /// <summary>
         /// Everything is ok.

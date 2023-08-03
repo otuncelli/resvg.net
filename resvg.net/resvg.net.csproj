@@ -3,7 +3,16 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\resvg.net.SourceGenerator\resvg.net.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="resvg_x86.dll">
@@ -15,34 +24,6 @@
     <None Update="resvg_arm64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(DefineConstants.Contains('USE_DELEGATES'))=='false'">
-    <None Update="Native\NativeMethods.Pinvoke.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>NativeMethods.Pinvoke.g.cs</LastGenOutput>
-    </None>
-    <Compile Update="Native\NativeMethods.Pinvoke.g.cs">
-      <DependentUpon>NativeMethods.Pinvoke.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <None Remove="Native\NativeMethods.Delegates.tt"></None>
-    <Compile Remove="Native\NativeMethods.Delegates.g.cs"></Compile>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(DefineConstants.Contains('USE_DELEGATES'))=='true'">
-    <None Update="Native\NativeMethods.Delegates.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>NativeMethods.Delegates.g.cs</LastGenOutput>
-    </None>
-    <Compile Update="Native\NativeMethods.Delegates.g.cs">
-      <DependentUpon>NativeMethods.Delegates.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <None Remove="Native\NativeMethods.Pinvoke.tt"></None>
-    <Compile Remove="Native\NativeMethods.Pinvoke.g.cs"></Compile>
   </ItemGroup>
 
   <ItemGroup>
