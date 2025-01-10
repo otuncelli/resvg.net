@@ -21,36 +21,38 @@ namespace resvg.net.SourceGenerator
             {
                 "ResvgTransform resvg_transform_identity()",
                 "void resvg_init_log()",
-                "IntPtr resvg_options_create()",
-                "void resvg_options_set_resources_dir(IntPtr opt, string path)",
-                "void resvg_options_set_dpi(IntPtr opt, float dpi)",
-                "void resvg_options_set_font_family(IntPtr opt, string family)",
-                "void resvg_options_set_font_size(IntPtr opt, float size)",
-                "void resvg_options_set_serif_family(IntPtr opt, string family)",
-                "void resvg_options_set_sans_serif_family(IntPtr opt, string family)",
-                "void resvg_options_set_cursive_family(IntPtr opt, string family)",
-                "void resvg_options_set_fantasy_family(IntPtr opt, string family)",
-                "void resvg_options_set_monospace_family(IntPtr opt, string family)",
-                "void resvg_options_set_languages(IntPtr opt, string languages)",
-                "void resvg_options_set_shape_rendering_mode(IntPtr opt, ShapeRenderingMode mode)",
-                "void resvg_options_set_text_rendering_mode(IntPtr opt, TextRenderingMode mode)",
-                "void resvg_options_set_image_rendering_mode(IntPtr opt, ImageRenderingMode mode)",
-                "void resvg_options_load_font_data(IntPtr opt, IntPtr data, UIntPtr length)",
-                "ResvgError resvg_options_load_font_file(IntPtr opt, string file_path)",
-                "void resvg_options_load_system_fonts(IntPtr opt)",
-                "void resvg_options_destroy(IntPtr opt)",
-                "ResvgError resvg_parse_tree_from_file(string file_path, IntPtr opt, out IntPtr tree)",
-                "ResvgError resvg_parse_tree_from_data(string data, UIntPtr length, IntPtr opt, out IntPtr tree)",
-                "bool resvg_is_image_empty(IntPtr tree)",
-                "ResvgSize resvg_get_image_size(IntPtr tree)",
-                "ResvgRect resvg_get_image_viewbox(IntPtr tree)",
-                "bool resvg_get_image_bbox(IntPtr tree, out ResvgRect bbox)",
-                "bool resvg_node_exists(IntPtr tree, string id)",
-                "bool resvg_get_node_transform(IntPtr tree, string id, out ResvgTransform transform)",
-                "bool resvg_get_node_bbox(IntPtr tree, string id, out ResvgRect bbox)",
-                "void resvg_tree_destroy(IntPtr tree)",
-                "void resvg_render(IntPtr tree, ResvgTransform transform, uint width, uint height, IntPtr pixmap)",
-                "bool resvg_render_node(IntPtr tree, string id, ResvgTransform transform, uint width, uint height, IntPtr pixmap)",
+                "nint resvg_options_create()",
+                "void resvg_options_set_resources_dir(nint opt, string path)",
+                "void resvg_options_set_dpi(nint opt, float dpi)",
+                "void resvg_options_set_stylesheet(nint opt, string content)",
+                "void resvg_options_set_font_family(nint opt, string family)",
+                "void resvg_options_set_font_size(nint opt, float size)",
+                "void resvg_options_set_serif_family(nint opt, string family)",
+                "void resvg_options_set_sans_serif_family(nint opt, string family)",
+                "void resvg_options_set_cursive_family(nint opt, string family)",
+                "void resvg_options_set_fantasy_family(nint opt, string family)",
+                "void resvg_options_set_monospace_family(nint opt, string family)",
+                "void resvg_options_set_languages(nint opt, string languages)",
+                "void resvg_options_set_shape_rendering_mode(nint opt, ShapeRenderingMode mode)",
+                "void resvg_options_set_text_rendering_mode(nint opt, TextRenderingMode mode)",
+                "void resvg_options_set_image_rendering_mode(nint opt, ImageRenderingMode mode)",
+                "void resvg_options_load_font_data(nint opt, nint data, UIntPtr length)",
+                "ResvgError resvg_options_load_font_file(nint opt, string file_path)",
+                "void resvg_options_load_system_fonts(nint opt)",
+                "void resvg_options_destroy(nint opt)",
+                "ResvgError resvg_parse_tree_from_file(string file_path, nint opt, out nint tree)",
+                "ResvgError resvg_parse_tree_from_data(string data, UIntPtr length, nint opt, out nint tree)",
+                "bool resvg_is_image_empty(nint tree)",
+                "ResvgSize resvg_get_image_size(nint tree)",
+                "bool resvg_get_object_bbox(nint tree, out ResvgRect bbox)",
+                "bool resvg_get_image_bbox(nint tree, out ResvgRect bbox)",
+                "bool resvg_node_exists(nint tree, string id)",
+                "bool resvg_get_node_transform(nint tree, string id, out ResvgTransform transform)",
+                "bool resvg_get_node_bbox(nint tree, string id, out ResvgRect bbox)",
+                "bool resvg_get_node_stroke_bbox(nint tree, string id, out ResvgRect bbox)",
+                "void resvg_tree_destroy(nint tree)",
+                "void resvg_render(nint tree, ResvgTransform transform, uint width, uint height, nint pixmap)",
+                "bool resvg_render_node(nint tree, string id, ResvgTransform transform, uint width, uint height, nint pixmap)",
             };
 
             StringBuilder source = new StringBuilder(@"// <auto-generated/>
@@ -97,7 +99,7 @@ namespace resvg.net
             string arguments = match.Groups[3].Value;
             string argumentsWithoutType = GetArgumentsWithoutType(arguments);
             string argumentsWithAttributes = RegexStringAttribute.Replace(arguments, "[MarshalAs(UnmanagedType.LPUTF8Str)] string");
-            string returnPrefix = returnType == "void" ? String.Empty : "return ";
+            string returnPrefix = returnType == "void" ? string.Empty : "return ";
 
             source.Append($@"
         #region {methodName}
@@ -155,7 +157,7 @@ namespace resvg.net
             string arguments = match.Groups[3].Value;
             string argumentsWithoutType = GetArgumentsWithoutType(arguments);
             string argumentsWithAttributes = RegexStringAttribute.Replace(arguments, "[MarshalAs(UnmanagedType.LPUTF8Str)] string");
-            string returnPrefix = returnType == "void" ? String.Empty : "return ";
+            string returnPrefix = returnType == "void" ? string.Empty : "return ";
 
             string delegateName = methodName + "_delegate";
             string fptrName = methodName + "_fptr";
@@ -206,7 +208,7 @@ namespace resvg.net
     {
         private static readonly string Extension = GetExtension();
 
-        private static readonly ConcurrentDictionary<string, IntPtr> LoadedLibraries = new ConcurrentDictionary<string, IntPtr>();
+        private static readonly ConcurrentDictionary<string, nint> LoadedLibraries = new ConcurrentDictionary<string, nint>();
 
         private static string GetExtension()
         {
@@ -220,7 +222,7 @@ namespace resvg.net
             ICollection<string> keys = LoadedLibraries.Keys;
             foreach (string key in keys)
             {
-                if (LoadedLibraries.TryRemove(key, out IntPtr lib))
+                if (LoadedLibraries.TryRemove(key, out nint lib))
                 {
                     NativeLibrary.Free(lib);
                 }
@@ -229,16 +231,16 @@ namespace resvg.net
 
         private static TDelegate GetDelegateForFunction<TDelegate>(string libraryName, string procName) where TDelegate : Delegate
         {
-            IntPtr lib = LoadedLibraries.GetOrAdd(libraryName, GetLibrary);
-            IntPtr fptr = NativeLibrary.GetExport(lib, procName);
+            nint lib = LoadedLibraries.GetOrAdd(libraryName, GetLibrary);
+            nint fptr = NativeLibrary.GetExport(lib, procName);
             return Marshal.GetDelegateForFunctionPointer<TDelegate>(fptr);
         }
 
-        private static IntPtr GetLibrary(string libraryName)
+        private static nint GetLibrary(string libraryName)
         {
             string libraryPath = GetLibraryPath(libraryName);
-            IntPtr handle = NativeLibrary.Load(libraryPath);
-            if (handle == IntPtr.Zero)
+            nint handle = NativeLibrary.Load(libraryPath);
+            if (handle == nint.Zero)
             {
                 throw new DllNotFoundException($""Unable to load library '{libraryName}'."");
             }
@@ -399,7 +401,7 @@ namespace resvg.net
             }
 
             [DllImport(""c"", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-            private static extern IntPtr gnu_get_libc_version();
+            private static extern nint gnu_get_libc_version();
         }
     }
 }");
