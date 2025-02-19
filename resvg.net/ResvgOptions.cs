@@ -8,15 +8,12 @@ namespace resvg.net;
 /// </summary>
 public sealed class ResvgOptions : IDisposable
 {
-    private nint opt;
-    private bool disposed;
-
-    internal nint Handle => opt;
+    internal nint Handle;
 
     /// <inheritdoc cref="ResvgOptions" />
     public ResvgOptions()
     {
-        opt = NativeMethods.resvg_options_create();
+        Handle = NativeMethods.resvg_options_create();
     }
 
     /// <summary>
@@ -28,7 +25,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="path"></param>
     public void SetResourcesDir(string? path)
     {
-        NativeMethods.resvg_options_set_resources_dir(opt, path);
+        NativeMethods.resvg_options_set_resources_dir(Handle, path);
     }
 
     /// <summary>
@@ -39,7 +36,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="dpi"></param>
     public void SetDpi(float dpi)
     {
-        NativeMethods.resvg_options_set_dpi(opt, dpi);
+        NativeMethods.resvg_options_set_dpi(Handle, dpi);
     }
 
     /// <summary>
@@ -48,7 +45,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="css"></param>
     public void SetStylesheet(string? css)
     {
-        NativeMethods.resvg_options_set_stylesheet(opt, css);
+        NativeMethods.resvg_options_set_stylesheet(Handle, css);
     }
 
     /// <summary>
@@ -62,7 +59,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_font_family(opt, family);
+        NativeMethods.resvg_options_set_font_family(Handle, family);
     }
 
     /// <summary>
@@ -73,7 +70,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="size"></param>
     public void SetFontSize(float size)
     {
-        NativeMethods.resvg_options_set_font_size(opt, size);
+        NativeMethods.resvg_options_set_font_size(Handle, size);
     }
 
     /// <summary>
@@ -87,7 +84,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_serif_family(opt, family);
+        NativeMethods.resvg_options_set_serif_family(Handle, family);
     }
 
     /// <summary>
@@ -101,7 +98,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_sans_serif_family(opt, family);
+        NativeMethods.resvg_options_set_sans_serif_family(Handle, family);
     }
 
     /// <summary>
@@ -115,7 +112,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_cursive_family(opt, family);
+        NativeMethods.resvg_options_set_cursive_family(Handle, family);
     }
 
     /// <summary>
@@ -129,7 +126,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_fantasy_family(opt, family);
+        NativeMethods.resvg_options_set_fantasy_family(Handle, family);
     }
 
     /// <summary>
@@ -143,7 +140,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(family);
 
-        NativeMethods.resvg_options_set_monospace_family(opt, family);
+        NativeMethods.resvg_options_set_monospace_family(Handle, family);
     }
 
     /// <summary>
@@ -155,7 +152,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="languages"></param>
     public void SetLanguages(string? languages)
     {
-        NativeMethods.resvg_options_set_languages(opt, languages);
+        NativeMethods.resvg_options_set_languages(Handle, languages);
     }
 
     /// <summary>
@@ -166,7 +163,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="mode"></param>
     public void SetShapeRenderingMode(ShapeRenderingMode mode)
     {
-        NativeMethods.resvg_options_set_shape_rendering_mode(opt, mode);
+        NativeMethods.resvg_options_set_shape_rendering_mode(Handle, mode);
     }
 
     /// <summary>
@@ -177,7 +174,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="mode"></param>
     public void SetTextRenderingMode(TextRenderingMode mode)
     {
-        NativeMethods.resvg_options_set_text_rendering_mode(opt, mode);
+        NativeMethods.resvg_options_set_text_rendering_mode(Handle, mode);
     }
 
     /// <summary>
@@ -188,7 +185,7 @@ public sealed class ResvgOptions : IDisposable
     /// <param name="mode"></param>
     public void SetImageRenderingMode(ImageRenderingMode mode)
     {
-        NativeMethods.resvg_options_set_image_rendering_mode(opt, mode);
+        NativeMethods.resvg_options_set_image_rendering_mode(Handle, mode);
     }
 
     /// <summary>
@@ -205,7 +202,7 @@ public sealed class ResvgOptions : IDisposable
         GCHandle gch = GCHandle.Alloc(data, GCHandleType.Pinned);
         try
         {
-            NativeMethods.resvg_options_load_font_data(opt, gch.AddrOfPinnedObject(), (UIntPtr)data.Length);
+            NativeMethods.resvg_options_load_font_data(Handle, gch.AddrOfPinnedObject(), (UIntPtr)data.Length);
         }
         finally
         {
@@ -224,7 +221,7 @@ public sealed class ResvgOptions : IDisposable
     {
         ArgumentNullException.ThrowIfNull(filePath);
 
-        Resvg.Check(NativeMethods.resvg_options_load_font_file(opt, filePath));
+        NativeMethods.resvg_options_load_font_file(Handle, filePath).Check();
     }
 
     /// <summary>
@@ -240,18 +237,17 @@ public sealed class ResvgOptions : IDisposable
     /// </remarks>
     public void LoadSystemFonts()
     {
-        NativeMethods.resvg_options_load_system_fonts(opt);
+        NativeMethods.resvg_options_load_system_fonts(Handle);
     }
 
     #region IDisposable
 
     public void Dispose()
     {
-        if (!disposed)
+        if (Handle != nint.Zero)
         {
-            NativeMethods.resvg_options_destroy(opt);
-            opt = nint.Zero;
-            disposed = true;
+            NativeMethods.resvg_options_destroy(Handle);
+            Handle = nint.Zero;
         }
     }
 

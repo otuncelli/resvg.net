@@ -1,10 +1,12 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace resvg.net;
 
 [StructLayout(LayoutKind.Sequential)]
-public ref struct ResvgSize
+[DebuggerDisplay("{Width},{Height}")]
+public struct ResvgSize
 {
     public float Width;
     public float Height;
@@ -13,7 +15,8 @@ public ref struct ResvgSize
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public ref struct ResvgRect
+[DebuggerDisplay("{X},{Y}, {Width},{Height}")]
+public struct ResvgRect
 {
     public float X;
     public float Y;
@@ -24,12 +27,15 @@ public ref struct ResvgRect
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public ref struct ResvgTransform
+[DebuggerDisplay("{M11},{M12}, {M21},{M22}, {OffsetX},{OffsetY}")]
+public struct ResvgTransform
 {
-    public float a;
-    public float b;
-    public float c;
-    public float d;
-    public float e;
-    public float f;
+    public static readonly ResvgTransform Identity = new() { M11 = 1, M22 = 1 };
+
+    public float M11;
+    public float M12;
+    public float M21;
+    public float M22;
+    public float OffsetX;
+    public float OffsetY;
 }

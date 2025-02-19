@@ -1,6 +1,6 @@
 # resvg.net
 
-.NET Core wrapper for [resvg](https://github.com/RazrFalcon/resvg); an [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) rendering library.
+.NET (Core) wrapper for [resvg](https://github.com/linebender/resvg); an [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) rendering library.
 
 # Usage
 
@@ -14,7 +14,7 @@ using Bitmap bitmap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bp
 Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 BitmapData data = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
 resvg.Render(data.Scan0, size.Width, size.Height);
-Resvg.ConvertRgbaToBgra(data.Scan0, size.Width, size.Height);
+PixelOperations.ConvertRgbaToBgra(data.Scan0, size.Width * size.Height);
 bitmap.UnlockBits(data);
 bitmap.Save("output.png");
 ```

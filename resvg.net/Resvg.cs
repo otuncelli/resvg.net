@@ -12,7 +12,6 @@ public class Resvg : IDisposable
 {
     #region Fields
 
-    private bool disposed;
     private nint tree;
     private static bool logging;
 
@@ -91,10 +90,10 @@ public class Resvg : IDisposable
         return NativeMethods.resvg_get_node_bbox(tree, id, out bbox);
     }
 
-    /// <inheritdoc cref="Render(nint, ResvgTransform, int, int)"/>
-    public void Render(nint pixmap, int width, int height)
+    /// <inheritdoc cref="Render(nint, ResvgTransform, int, int, PixelOpFlags)"/>
+    public void Render(nint pixmap, int width, int height, PixelOpFlags flags = PixelOpFlags.None)
     {
-        Render(pixmap, NativeMethods.resvg_transform_identity(), width, height);
+        Render(pixmap, ResvgTransform.Identity, width, height, flags);
     }
 
     /// <summary>
@@ -104,19 +103,21 @@ public class Resvg : IDisposable
     /// <param name="transform">A root SVG transform. Can be used to position SVG inside the `pixmap`.</param>
     /// <param name="width">Pixmap width.</param>
     /// <param name="height">Pixmap height.</param>
+    /// <param name="flags">Pixel operations to be performed on the pixmap.</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void Render(nint pixmap, ResvgTransform transform, int width, int height)
+    public void Render(nint pixmap, ResvgTransform transform, int width, int height, PixelOpFlags flags = PixelOpFlags.None)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
 
         NativeMethods.resvg_render(tree, transform, (uint)width, (uint)height, pixmap);
+        PixelOperations.ApplyPixelOperation(pixmap, width * height, flags);
     }
 
-    /// <inheritdoc cref="RenderNode(nint, string, ResvgTransform, int, int)"/>
-    public bool RenderNode(nint pixmap, string id, int width, int height)
+    /// <inheritdoc cref="RenderNode(nint, string, ResvgTransform, int, int, PixelOpFlags)"/>
+    public bool RenderNode(nint pixmap, string id, int width, int height, PixelOpFlags flags = PixelOpFlags.None)
     {
-        return TryGetNodeTransform(id, out ResvgTransform transform) && RenderNode(pixmap, id, transform, width, height);
+        return TryGetNodeTransform(id, out ResvgTransform transform) && RenderNode(pixmap, id, transform, width, height, flags);
     }
 
     /// <summary>
@@ -127,27 +128,30 @@ public class Resvg : IDisposable
     /// <param name="transform">A root SVG transform. Can be used to position SVG inside the `pixmap`.</param>
     /// <param name="width">Pixmap width.</param>
     /// <param name="height">Pixmap height.</param>
+    /// <param name="flags">Pixel operations to be performed on the pixmap.</param>
     /// <returns>`true` on success.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public bool RenderNode(nint pixmap, string id, ResvgTransform transform, int width, int height)
+    public bool RenderNode(nint pixmap, string id, ResvgTransform transform, int width, int height, PixelOpFlags flags = PixelOpFlags.None)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
 
-        return NativeMethods.resvg_render_node(tree, id, transform, (uint)width, (uint)height, pixmap);
+        if (!NativeMethods.resvg_render_node(tree, id, transform, (uint)width, (uint)height, pixmap))
+            return false;
+        PixelOperations.ApplyPixelOperation(pixmap, width * height, flags);
+        return true;
     }
 
     #region IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposed)
+        if (tree != nint.Zero)
         {
             NativeMethods.resvg_tree_destroy(tree);
             tree = nint.Zero;
-            disposed = true;
         }
     }
 
@@ -162,7 +166,7 @@ public class Resvg : IDisposable
     private void Init()
     {
         Size = NativeMethods.resvg_get_image_size(tree);
-        if (NativeMethods.resvg_get_image_bbox(tree, out ResvgRect bbox))
+        if (NativeMethods.resvg_get_object_bbox(tree, out ResvgRect bbox))
         {
             Bbox = bbox;
         }
@@ -182,16 +186,16 @@ public class Resvg : IDisposable
     /// <exception cref="ArgumentNullException"></exception>
     public static Resvg FromFile(string path, ResvgOptions options)
     {
-        ArgumentNullException.ThrowIfNull(path);
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(options);
 
         Resvg resvg = new();
         try
         {
-            Check(NativeMethods.resvg_parse_tree_from_file(path, options.Handle, out resvg.tree));
+            NativeMethods.resvg_parse_tree_from_file(path, options.Handle, out resvg.tree).Check();
             resvg.Init();
         }
-        catch (Exception)
+        catch
         {
             resvg.Dispose();
             throw;
@@ -209,7 +213,7 @@ public class Resvg : IDisposable
     /// <exception cref="ArgumentNullException"></exception>
     public static Resvg FromFile(string path, bool loadSystemFonts = true)
     {
-        ArgumentNullException.ThrowIfNull(path);
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         using ResvgOptions options = new();
         if (loadSystemFonts)
@@ -228,17 +232,17 @@ public class Resvg : IDisposable
     /// <exception cref="ArgumentNullException"></exception>
     public static Resvg FromData(string data, ResvgOptions options)
     {
-        ArgumentNullException.ThrowIfNull(data);
+        ArgumentException.ThrowIfNullOrWhiteSpace(data);
         ArgumentNullException.ThrowIfNull(options);
 
         Resvg resvg = new();
+        nuint length = (nuint)Encoding.UTF8.GetByteCount(data);
         try
         {
-            UIntPtr length = (UIntPtr)Encoding.UTF8.GetByteCount(data);
-            Check(NativeMethods.resvg_parse_tree_from_data(data, length, options.Handle, out resvg.tree));
+            NativeMethods.resvg_parse_tree_from_data(data, length, options.Handle, out resvg.tree).Check();
             resvg.Init();
         }
-        catch (Exception)
+        catch
         {
             resvg.Dispose();
             throw;
@@ -292,8 +296,12 @@ public class Resvg : IDisposable
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        using StreamReader reader = new(stream, leaveOpen: true);
-        return FromData(reader.ReadToEnd(), loadSystemFonts);
+        using ResvgOptions options = new();
+        if (loadSystemFonts)
+        {
+            options.LoadSystemFonts();
+        }
+        return FromStream(stream, options);
     }
 
     /// <summary>
@@ -311,27 +319,6 @@ public class Resvg : IDisposable
             NativeMethods.resvg_init_log();
             logging = true;
         }
-    }
-
-    /// <summary>
-    /// RGBA -> BGRA
-    /// </summary>
-    /// <param name="pixmap"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    public static unsafe void ConvertRgbaToBgra(nint pixmap, int width, int height)
-    {
-        byte* src = (byte*)(void*)pixmap;
-        for (int i = 0; i < width * height * 4; i += 4)
-        {
-            (src[i], src[i + 2]) = (src[i + 2], src[i]);
-        }
-    }
-
-    internal static void Check(ResvgError error)
-    {
-        if (error == ResvgError.OK) { return; }
-        throw new ResvgException(error);
     }
 
     #endregion

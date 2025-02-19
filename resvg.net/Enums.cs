@@ -1,4 +1,6 @@
-﻿namespace resvg.net;
+﻿using System;
+
+namespace resvg.net;
 
 internal enum ResvgError
 {
@@ -61,4 +63,15 @@ public enum TextRenderingMode
     OptimizeSpeed,
     OptimizeLegibility,
     GeometricPrecision
+}
+
+/// <summary>
+/// Pixel operations to be performed on render output.
+/// </summary>
+[Flags]
+public enum PixelOpFlags
+{
+    None = 0,
+    RgbaToBgra = 1 << 0,
+    UnPremultiplyAlpha = 1 << 1,
 }
