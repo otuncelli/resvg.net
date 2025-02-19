@@ -13,8 +13,7 @@ Size size = resvg.Size.ToSize();
 using Bitmap bitmap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppPArgb);
 Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 BitmapData data = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
-resvg.Render(data.Scan0, size.Width, size.Height);
-PixelOperations.ConvertRgbaToBgra(data.Scan0, size.Width * size.Height);
+resvg.Render(data.Scan0, size.Width, size.Height, PixelOpFlags.RgbaToBgra);
 bitmap.UnlockBits(data);
 bitmap.Save("output.png");
 ```
