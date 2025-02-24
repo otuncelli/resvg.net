@@ -111,7 +111,7 @@ public class Resvg : IDisposable
         ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
 
         NativeMethods.resvg_render(tree, transform, (uint)width, (uint)height, pixmap);
-        PixelOperations.ApplyPixelOperation(pixmap, width * height, flags);
+        PixelOperations.Apply(pixmap, width * height, flags);
     }
 
     /// <inheritdoc cref="RenderNode(nint, string, ResvgTransform, int, int, PixelOpFlags)"/>
@@ -140,7 +140,7 @@ public class Resvg : IDisposable
 
         if (!NativeMethods.resvg_render_node(tree, id, transform, (uint)width, (uint)height, pixmap))
             return false;
-        PixelOperations.ApplyPixelOperation(pixmap, width * height, flags);
+        PixelOperations.Apply(pixmap, width * height, flags);
         return true;
     }
 

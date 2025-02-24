@@ -8,7 +8,7 @@ namespace resvg.net;
 internal static unsafe class PixelOperations
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ApplyPixelOperation(nint pixmap, int pixcnt, PixelOpFlags flags)
+    public static void Apply(nint pixmap, int pixcnt, PixelOpFlags flags)
     {
         if (flags.HasFlag(PixelOpFlags.RgbaToBgra))
         {
@@ -22,32 +22,84 @@ internal static unsafe class PixelOperations
 
     private static void ConvertRgbaToBgra(nint pixmap, int pixcnt)
     {
+        const int unrollFactor = 4;
+
         byte* ptr = (byte*)pixmap;
 
         if (Avx2.IsSupported && pixcnt >= Vector256<uint>.Count)
         {
             Vector256<byte> vmask = GetMask256([2, 1, 0, 3], sizeof(uint));
-            do
+            while (pixcnt >= Vector256<uint>.Count * unrollFactor)
+            {
+                byte* ptr1 = ptr + Vector256<byte>.Count;
+                byte* ptr2 = ptr + 2 * Vector256<byte>.Count;
+                byte* ptr3 = ptr + 3 * Vector256<byte>.Count;
+
+                Vector256<byte> v0 = Avx.LoadVector256(ptr);
+                Vector256<byte> v1 = Avx.LoadVector256(ptr1);
+                Vector256<byte> v2 = Avx.LoadVector256(ptr2);
+                Vector256<byte> v3 = Avx.LoadVector256(ptr3);
+
+                v0 = Avx2.Shuffle(v0, vmask);
+                v1 = Avx2.Shuffle(v1, vmask);
+                v2 = Avx2.Shuffle(v2, vmask);
+                v3 = Avx2.Shuffle(v3, vmask);
+
+                Avx.Store(ptr, v0);
+                Avx.Store(ptr1, v1);
+                Avx.Store(ptr2, v2);
+                Avx.Store(ptr3, v3);
+
+                ptr += Vector256<byte>.Count * unrollFactor;
+                pixcnt -= Vector256<uint>.Count * unrollFactor;
+            }
+
+            while (pixcnt >= Vector256<uint>.Count)
             {
                 Vector256<byte> v = Avx.LoadVector256(ptr);
                 v = Avx2.Shuffle(v, vmask);
                 Avx.Store(ptr, v);
                 ptr += Vector256<byte>.Count;
                 pixcnt -= Vector256<uint>.Count;
-            } while (pixcnt >= Vector256<uint>.Count);
+            }
         }
 
         if (Ssse3.IsSupported && pixcnt >= Vector128<uint>.Count)
         {
             Vector128<byte> vmask = GetMask128([2, 1, 0, 3], sizeof(uint));
-            do
+            while (pixcnt >= Vector128<uint>.Count * unrollFactor)
+            {
+                byte* ptr1 = ptr + Vector128<byte>.Count;
+                byte* ptr2 = ptr + 2 * Vector128<byte>.Count;
+                byte* ptr3 = ptr + 3 * Vector128<byte>.Count;
+
+                Vector128<byte> v0 = Sse2.LoadVector128(ptr);
+                Vector128<byte> v1 = Sse2.LoadVector128(ptr1);
+                Vector128<byte> v2 = Sse2.LoadVector128(ptr2);
+                Vector128<byte> v3 = Sse2.LoadVector128(ptr3);
+
+                v0 = Ssse3.Shuffle(v0, vmask);
+                v1 = Ssse3.Shuffle(v1, vmask);
+                v2 = Ssse3.Shuffle(v2, vmask);
+                v3 = Ssse3.Shuffle(v3, vmask);
+
+                Sse2.Store(ptr, v0);
+                Sse2.Store(ptr1, v1);
+                Sse2.Store(ptr2, v2);
+                Sse2.Store(ptr3, v3);
+
+                ptr += Vector128<byte>.Count * unrollFactor;
+                pixcnt -= Vector128<uint>.Count * unrollFactor;
+            }
+
+            while (pixcnt >= Vector128<uint>.Count)
             {
                 Vector128<byte> v = Sse2.LoadVector128(ptr);
                 v = Ssse3.Shuffle(v, vmask);
                 Sse2.Store(ptr, v);
                 ptr += Vector128<byte>.Count;
                 pixcnt -= Vector128<uint>.Count;
-            } while (pixcnt >= Vector128<uint>.Count);
+            }
         }
 
         while (pixcnt > 0)
